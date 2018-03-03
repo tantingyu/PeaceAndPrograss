@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ParseFile {
-    // this method generates a ProcessGraph and store in ProcessGraph Class
+    // this method generates a ProcessGraph and stores it in the ProcessGraph Class
     public static void generateGraph(File inputFile) {
         try {
             Scanner fileIn = new Scanner(inputFile);
             ArrayList<Integer> edgeParents = new ArrayList<Integer>();
             ArrayList<Integer> edgeChildren = new ArrayList<Integer>();
-            int index=0;
+            int index = 0;
             
             while (fileIn.hasNext()) {
                 String line=fileIn.nextLine();
@@ -20,6 +20,7 @@ public class ParseFile {
                     System.out.println("Wrong input format!");
                     throw new Exception();
                 }
+                
                 // add this node
                 ProcessGraph.addNode(index);
                 // handle children
@@ -32,13 +33,14 @@ public class ParseFile {
                         edgeChildren.add(childrenId[i]);
                     }
                 }
-                // setup command
+                
+                // set command
                 ProcessGraph.nodes.get(index).setCommand(quatiles[0]);
-                // setup input
+                // set input
                 ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
-                // setup output
+                // set output
                 ProcessGraph.nodes.get(index).setOutputFile(new File(quatiles[3]));
-                // setup parent
+                // set parent(s)
                 for (ProcessGraphNode node : ProcessGraph.nodes) {
                     for (ProcessGraphNode childNode : node.getChildren()) {
                         ProcessGraph.nodes.get(childNode.getNodeId())
@@ -46,9 +48,9 @@ public class ParseFile {
                         		.get(node.getNodeId()));
                     }
                 }
-                // mark initial runnable
-                for (ProcessGraphNode node:ProcessGraph.nodes) {
-                    if (node.getParents().isEmpty()){
+                // set nodes with no parent(s) as runnable
+                for (ProcessGraphNode node : ProcessGraph.nodes) {
+                    if (node.getParents().isEmpty()) {
                         node.setRunnable();
                     }
                 }

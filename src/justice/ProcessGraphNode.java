@@ -6,11 +6,9 @@ import java.util.List;
 
 public class ProcessGraphNode {
 
-    // point to all the parents
-    private ArrayList<ProcessGraphNode> parents = new ArrayList<>();
-    // point to all the children
-    private ArrayList<ProcessGraphNode> children = new ArrayList<>();
-    // properties of ProcessGraphNode
+    private ArrayList<ProcessGraphNode> parents = new ArrayList<>();	// contains all parents
+    private ArrayList<ProcessGraphNode> children = new ArrayList<>();	// contains all children
+    
     private int nodeId;
     private File inputFile;
     private File outputFile;
@@ -28,7 +26,9 @@ public class ProcessGraphNode {
         this.runnable = true;
     }
 
-    public void setNotRunable() {this.runnable = false;}
+    public void setNotRunable() {
+    	this.runnable = false;
+    }
 
     public void setExecuted() {
         this.executed = true;
@@ -53,6 +53,7 @@ public class ProcessGraphNode {
             parents.add(parent);
         }
     }
+    
     public void setInputFile(File inputFile) {
         this.inputFile = inputFile;
     }
@@ -90,15 +91,15 @@ public class ProcessGraphNode {
     }
 
     public synchronized boolean allParentsExecuted() {
-        boolean ans=true;
+        boolean ans = true;
         for (ProcessGraphNode child : this.getChildren()) {
             if (child.isExecuted()) {
                 return false;
             }
         }
-        for (ProcessGraphNode parent:this.getParents()) {
+        for (ProcessGraphNode parent : this.getParents()) {
             if (!parent.isExecuted())
-                ans=false;
+                ans = false;
         }
         return ans;
     }

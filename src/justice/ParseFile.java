@@ -8,7 +8,7 @@ public class ParseFile {
     // this method generates a ProcessGraph and store in ProcessGraph Class
     public static void generateGraph(File inputFile) {
         try {
-            Scanner fileIn=new Scanner(inputFile);
+            Scanner fileIn = new Scanner(inputFile);
             ArrayList<Integer> edgeParents = new ArrayList<Integer>();
             ArrayList<Integer> edgeChildren = new ArrayList<Integer>();
             int index=0;
@@ -46,7 +46,7 @@ public class ParseFile {
                         		.get(node.getNodeId()));
                     }
                 }
-                //mark initial runnable
+                // mark initial runnable
                 for (ProcessGraphNode node:ProcessGraph.nodes) {
                     if (node.getParents().isEmpty()){
                         node.setRunnable();

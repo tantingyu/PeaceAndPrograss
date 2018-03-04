@@ -12,6 +12,10 @@ public class ProcessManagement {
     public static Object lock = new Object();
 
     public static void main(String[] args) throws InterruptedException {
+    	/* File currentDirectory = new File(System.getProperty("user.dir"));
+    	File instructionSet = new File(args[0]);
+    	Object lock = new Object();*/
+    	
     	// create a ProcessGraph from the instructions file
         ParseFile.generateGraph(new File(currentDirectory.getAbsolutePath() 
         		+ "/" + instructionSet));
@@ -46,19 +50,16 @@ class NodeThread extends Thread {
 	
 	@Override
 	public void run() {
-		ProcessBuilder pb = new ProcessBuilder(commandList);
-    	pb.directory(currentDirectory);
-    	
     	try {
-    		Process p = pb.start();
-    		BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-    		
-    		String line;
-    		while ((line = br.readLine()) != null)
-    			System.out.println(line);
-    		br.close();
+    		ProcessBuilder pb = new ProcessBuilder(commandList);
+    		BufferedReader br = new BufferedReader(new 
+					InputStreamReader(pb.start().getInputStream()));		
+			for (String line; (line = br.readLine()) != null;) {
+				System.out.println(line);
+			}
+			br.close();
     	} catch (IOException e) {
-    		System.out.println(e.getMessage());
+    		e.printStackTrace();
     	}
 	}
 }

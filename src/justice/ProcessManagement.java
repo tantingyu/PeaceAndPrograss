@@ -15,6 +15,7 @@ public class ProcessManagement {
 
     public static void main(String[] args) throws InterruptedException {
     	currentDirectory = new File(System.getProperty("user.dir"));
+    	//instructionSet = new File("graph-file");
     	instructionSet = new File(args[0]);
     	lock = new Object();
     	
@@ -31,6 +32,7 @@ public class ProcessManagement {
 
         while (!finished) {
         	// using index of ProcessGraph, loop through each ProcessGraphNode, to check whether it is ready to run
+        	// TODO: active and inactive threads
         	
         	// check if all the nodes are executed
 	        unexecutedNodes = getUnexecutedNodes(allNodes);
@@ -42,8 +44,7 @@ public class ProcessManagement {
 	        	finished = true;
 	        }
 	    }
-        
-        
+        System.out.println(finished);
         System.out.println("\nAll processes finished successfully");
     }
     

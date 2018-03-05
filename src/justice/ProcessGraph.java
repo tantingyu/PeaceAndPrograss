@@ -1,11 +1,11 @@
 package justice;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProcessGraph {
 	
-	// contains all nodes
-    public static ArrayList<ProcessGraphNode> nodes = new ArrayList<>();
+    public static List<ProcessGraphNode> nodes = new ArrayList<>();		// contains all nodes
 
     // add node if not yet created
     public static void addNode(int index) {
@@ -14,29 +14,28 @@ public class ProcessGraph {
         }
     }
 
-    // print all information
+    // prints the full information of every node in the graph
     public static void printGraph() {
-        // System.out.println();
         System.out.println("\nGraph Info:");
         try {
             for (ProcessGraphNode node : nodes) {
-                System.out.print("\nNode "+ node.getNodeId()+": \nParent: ");
+                System.out.println("\nNode "+ node.getNodeId() + ": ");
+                System.out.print("\nParent: ");
                 if (node.getParents().isEmpty()) System.out.print("none");
                 for (ProcessGraphNode parentnode : node.getParents()) {
                     System.out.print(parentnode.getNodeId() + " ");
                 }
-                System.out.print(" \nChildren: ");
+                System.out.print("\nChildren: ");
                 if (node.getChildren().isEmpty()) System.out.print("none");
                 for (ProcessGraphNode childnode :
                         node.getChildren()) {
                     System.out.print(childnode.getNodeId() + " ");
                 }
-                System.out.print("\nCommand: "+node.getCommand() + "    ");
-                System.out.print("\nInput File: "+ node.getInputFile() + "    ");
-                System.out.println("\nOutput File: " + node.getOutputFile() + "    ");
-                System.out.println("Runnable: " + node.isRunnable());
-                System.out.println("Executed: "+ node.isExecuted());
-                // System.out.println("\n");
+                System.out.print("\nCommand: " + node.getCommand() + "    ");
+                System.out.print("\nInput File: " + node.getInputFile() + "    ");
+                System.out.print("\nOutput File: " + node.getOutputFile() + "    ");
+                System.out.print("\nRunnable: " + node.isRunnable());
+                System.out.print("\nExecuted: " + node.isExecuted() + "\n");
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -44,11 +43,11 @@ public class ProcessGraph {
         }
     }
 
-    // print basic information
+    // prints the basic information of every node in the graph
     public static void printBasic() {
         System.out.println("\nBasic Info:");
         for (ProcessGraphNode node : nodes) {
-            System.out.println("\nNode: " + node.getNodeId() + " Runnable: " + node.isRunnable() 
+            System.out.println("Node: " + node.getNodeId() + " Runnable: " + node.isRunnable() 
             		+ " Executed: " + node.isExecuted());
         }
     }

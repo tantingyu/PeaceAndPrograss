@@ -2,14 +2,16 @@ package justice;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ParseFile {
-    // this method generates a ProcessGraph
+	
+    // generates a ProcessGraph from a given input file
     public static void generateGraph(File inputFile) {
         try {
-        	ArrayList<Integer> edgeParents = new ArrayList<Integer>();
-            ArrayList<Integer> edgeChildren = new ArrayList<Integer>();
+        	List<Integer> edgeParents = new ArrayList<Integer>();
+            List<Integer> edgeChildren = new ArrayList<Integer>();
         	Scanner fileIn = new Scanner(inputFile);
         	
             int index = 0;

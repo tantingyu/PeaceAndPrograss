@@ -12,8 +12,6 @@ class NodeThread extends Thread {
 	NodeThread(ProcessGraphNode node) {
 		this.node = node;
 		commandList = node.getCommand().split(" ");
-		// set runnable to false
-		node.setNotRunnable();
 	}
 	
 	@Override
@@ -37,7 +35,7 @@ class NodeThread extends Thread {
 			br.close();
 			
 			// set executed to true
-	    	node.setExecuted();
+			node.setExecuted();
     	} catch (IOException e) {
     		e.printStackTrace();
     	}

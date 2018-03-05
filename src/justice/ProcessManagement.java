@@ -7,10 +7,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class ProcessManagement {
-
+	
     private static File currentDirectory;	// working directory
     private static File instructionSet;		// instructions file
-    public static Object lock;
+    public static Object lock;				// resource lock
 
     public static void main(String[] args) throws InterruptedException {
     	currentDirectory = new File(System.getProperty("user.dir"));
@@ -81,48 +81,51 @@ public class ProcessManagement {
      * @param runnableNodes - list of runnable nodes in the ProcessGraph
      */
     public static void executeRunnableNodes(ArrayList<ProcessGraphNode> runnableNodes) {
-    	ArrayList<NodeThread> threadList = new ArrayList<>();
     	// create threads and start
     	for (ProcessGraphNode node : runnableNodes) {
-    		NodeThread thread = new NodeThread(node);
-    		threadList.add(thread);
-    		thread.start();
-    	}
-    	// wait for threads to finish
-    	for (int i = 0; i < runnableNodes.size(); i++) {
-    		try {
-    			threadList.get(i).join();
-    			// set node's executed property to true
-        		runnableNodes.get(i).setExecuted();
-        		// set node's runnable property to false
-        		runnableNodes.get(i).setNotRunnable();
-    		} catch (InterruptedException e) {
-    			System.out.println(e);
-    		}
+    		new NodeThread(node).start();
     	}
     }
 }
 
 class NodeThread extends Thread {
 	
+	ProcessGraphNode node;
 	String[] commandList;
+	boolean sharedRes;
 	
 	NodeThread(ProcessGraphNode node) {
+		sharedRes = false;
 		// augment command to redirect input and output if not default
 		String command = node.getCommand();
-		if (!node.getInputFile().equals("stdin")) {
+		if (!node.getInputFile().getName().equals("stdin")) {
 			command += " < " + node.getInputFile();
+			sharedRes = true;
 		}
-		if (!node.getOutputFile().equals("stdout")) {
+		if (!node.getOutputFile().getName().equals("stdout")) {
 			command += " > " + node.getOutputFile();
+			sharedRes = true;
 		}
 		commandList = command.split(" ");
+		this.node = node;
 	}
 	
 	@Override
 	public void run() {
-    	try {
+		if (sharedRes) {
+	    	synchronized(ProcessManagement.lock) {
+	    		doStuff();
+	    	}
+		} else {
+			doStuff();
+		}
+	}
+	
+	public void doStuff() {
+		try {
     		ProcessBuilder pb = new ProcessBuilder(commandList);
+    		node.setNotRunnable();
+    		node.setExecuted();
     		// read and display console output
     		BufferedReader br = new BufferedReader(new 
 					InputStreamReader(pb.start().getInputStream()));

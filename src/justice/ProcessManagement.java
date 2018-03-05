@@ -38,7 +38,6 @@ public class ProcessManagement {
 	        runnableNodes = markRunnableNodes(unexecutedNodes);
 	        // run the node if it is runnable
 	        executeRunnableNodes(runnableNodes);
-//	        if (node unexecuted but not runnable == currently running. wait until it finishes then run the loop again){
 	        if (unexecutedNodes.size() == 0){
 	        	finished = true;
 	        }
@@ -52,7 +51,7 @@ public class ProcessManagement {
      * Checks for and consolidates unexecuted nodes in the ProcessGraph
      * @param allNodes - list of all nodes in the ProcessGraph
      * @return list of unexecuted nodes in the ProcessGraph, empty if all nodes have been executed
-     * for nodes currently running, do not set as unexecuted, access the lock to 
+     * 
      */
     public static ArrayList<ProcessGraphNode> getUnexecutedNodes(ArrayList<ProcessGraphNode> 
     		allNodes) {
@@ -75,7 +74,8 @@ public class ProcessManagement {
     	ArrayList<ProcessGraphNode> runnableNodes = new ArrayList<>();
     	for (ProcessGraphNode node : unexecutedNodes) {
     		// nodes without parents or nodes with all control dependencies are cleared can be run.
-    		if (node.getParents().isEmpty()|| node.allParentsExecuted()){ // || node.isrunnable() 
+    		if (node.getParents().isEmpty()|| node.allParentsExecuted()){ 
+    			// || node.isrunnable() ?
     			runnableNodes.add(node);
     			// set node's runnable property to true
     			node.setRunnable();

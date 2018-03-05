@@ -8,16 +8,16 @@ public class ParseFile {
     // this method generates a ProcessGraph and stores it in the ProcessGraph Class
     public static void generateGraph(File inputFile) {
         try {
-            Scanner fileIn = new Scanner(inputFile);
             ArrayList<Integer> edgeParents = new ArrayList<Integer>();
             ArrayList<Integer> edgeChildren = new ArrayList<Integer>();
-            int index = 0;
+            Scanner fileIn = new Scanner(inputFile);
             
+            int index = 0;
             while (fileIn.hasNext()) {
-                String line=fileIn.nextLine();
-                String[] quatiles= line.split(":");
+                String line = fileIn.nextLine();
+                String[] quatiles = line.split(":");
                 if (quatiles.length != 4) {
-                    System.out.println("Wrong input format!");
+                    System.out.println("Wrong input format");
                     throw new Exception();
                 }
                 
@@ -36,9 +36,9 @@ public class ParseFile {
                 
                 // set command
                 ProcessGraph.nodes.get(index).setCommand(quatiles[0]);
-                // set input
+                // set input file
                 ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
-                // set output
+                // set output file
                 ProcessGraph.nodes.get(index).setOutputFile(new File(quatiles[3]));
                 // set parent(s)
                 for (ProcessGraphNode node : ProcessGraph.nodes) {
@@ -54,7 +54,7 @@ public class ParseFile {
                         node.setRunnable();
                     }
                 }
-                index++;
+                index += 1;
             }
 
             for (int i = 0; i < edgeParents.size(); i++) {
@@ -63,7 +63,7 @@ public class ParseFile {
                 ProcessGraph.nodes.get(p).addChild(ProcessGraph.nodes.get(c));
             }
         } catch (Exception e){
-            System.out.println("File not found!");
+            System.out.println("File not found");
             e.printStackTrace();
         }
     }

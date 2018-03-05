@@ -39,7 +39,7 @@ public class ProcessGraph {
                 // System.out.println("\n");
             }
         } catch (Exception e){
-            System.out.println("Exception!");
+            e.printStackTrace();
             return;
         }
     }

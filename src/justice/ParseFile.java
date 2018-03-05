@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ParseFile {
-    // this method generates a ProcessGraph and stores it in the ProcessGraph Class
+    // this method generates a ProcessGraph
     public static void generateGraph(File inputFile) {
         try {
-            ArrayList<Integer> edgeParents = new ArrayList<Integer>();
+        	ArrayList<Integer> edgeParents = new ArrayList<Integer>();
             ArrayList<Integer> edgeChildren = new ArrayList<Integer>();
-            Scanner fileIn = new Scanner(inputFile);
-            
+        	Scanner fileIn = new Scanner(inputFile);
+        	
             int index = 0;
             while (fileIn.hasNext()) {
                 String line = fileIn.nextLine();
@@ -21,9 +21,9 @@ public class ParseFile {
                     throw new Exception();
                 }
                 
-                // add this node
+                // add node
                 ProcessGraph.addNode(index);
-                // handle children
+                // add edges
                 if (!quatiles[1].equals("none")) {
                     String[] childrenStringArray = quatiles[1].split(" ");
                     int[] childrenId = new int[childrenStringArray.length];
@@ -33,34 +33,36 @@ public class ParseFile {
                         edgeChildren.add(childrenId[i]);
                     }
                 }
-                
+                                              
                 // set command
                 ProcessGraph.nodes.get(index).setCommand(quatiles[0]);
                 // set input file
                 ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
                 // set output file
                 ProcessGraph.nodes.get(index).setOutputFile(new File(quatiles[3]));
-                // set parent(s)
-                for (ProcessGraphNode node : ProcessGraph.nodes) {
-                    for (ProcessGraphNode childNode : node.getChildren()) {
-                        ProcessGraph.nodes.get(childNode.getNodeId())
-                        		.addParent(ProcessGraph.nodes
-                        		.get(node.getNodeId()));
-                    }
-                }
-                // set nodes with no parent(s) as runnable
-                for (ProcessGraphNode node : ProcessGraph.nodes) {
-                    if (node.getParents().isEmpty()) {
-                        node.setRunnable();
-                    }
-                }
                 index += 1;
             }
-
+            
+            // set children
             for (int i = 0; i < edgeParents.size(); i++) {
                 int p = edgeParents.get(i);
                 int c = edgeChildren.get(i);
                 ProcessGraph.nodes.get(p).addChild(ProcessGraph.nodes.get(c));
+            }
+            
+            // set parents
+            for (ProcessGraphNode node : ProcessGraph.nodes) {
+                for (ProcessGraphNode childNode : node.getChildren()) {
+                	ProcessGraph.nodes.get(childNode.getNodeId())
+                		.addParent(ProcessGraph.nodes.get(node.getNodeId()));
+                }
+            }
+            
+            // set nodes with no parents as runnable
+            for (ProcessGraphNode node : ProcessGraph.nodes) {
+                if (node.getParents().isEmpty()) {
+                    node.setRunnable();
+                }
             }
         } catch (Exception e){
             System.out.println("File not found");

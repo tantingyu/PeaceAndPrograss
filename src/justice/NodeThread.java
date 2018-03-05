@@ -19,6 +19,7 @@ class NodeThread extends Thread {
 		if (!node.getOutputFile().getName().equals("stdout")) {
 			command += " > " + node.getOutputFile();
 		}
+		System.out.println(command);
 		commandList = command.split(" ");
 		// set runnable to false
 		node.setNotRunnable();
@@ -38,7 +39,7 @@ class NodeThread extends Thread {
 			// set executed to true
 	    	node.setExecuted();
     	} catch (IOException e) {
-    		System.out.println(e);
+    		e.printStackTrace();
     	}
 	}
 }

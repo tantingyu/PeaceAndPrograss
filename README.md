@@ -1,8 +1,8 @@
 # PeaceAndPrograss
 
 <pre><code>/* Programming Assignment 1
-&#42; Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)
-&#42; Date: 06/03/2018
+ &#42; Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)
+ &#42; Date: 06/03/2018
 */</code></pre>
  
 <h2>Purpose<br></h2>

@@ -44,9 +44,9 @@ $ java ProcessManagement
 <p>
 	<ul>
 		1. The input file is written in this format:<code>&lt;program name with arguments&gt; : &lt;child nodes IDs&gt; : &lt;input&gt; : &lt;output&gt;</code><br>
-		2. The program parses the input file to generate a ProcessGraph, which prints out details of nodes under<samp>Graph info:</samp><br><a href="https://imgbb.com/"><img src="https://image.ibb.co/cqdP7n/3.png" alt="3" border="0"></a><br>
+		2. The program parses the input file to generate a ProcessGraph, which prints out details of nodes under <samp>Graph info:</samp><br><a href="https://imgbb.com/"><img src="https://image.ibb.co/cqdP7n/3.png" alt="3" border="0"></a><br>
 		3. The program enters a loop to traverse all the nodes in the graph, keeping a record of unexecuted nodes. <br>
-		4. The executed and runnable status of each node is printed under<samp>Basic Info:  </samp><br>
+		4. The executed and runnable status of each node is printed under <samp>Basic Info:  </samp><br>
 <a href="https://ibb.co/kSOD07"><img src="https://image.ibb.co/m6y2tS/4.png" alt="4" border="0"></a><br>
 		5. Of the unexecuted nodes, the ones that are runnable will be executed with a new thread. The program keeps track of threads that are currently running but not executed yet, by checking whether the thread was newly created or not.  <br>
 		6. Threads that are finished executing will no longer be included as an unexecuted node in the next loop.<br>

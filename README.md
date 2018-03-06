@@ -1,5 +1,10 @@
 # PeaceAndPrograss
 
+/* Programming Assignment 1
+ * Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)
+ * Date: 06/03/2018
+ */
+ 
 <h2>Purpose<br></h2>
 <p>This program first generates a directed acyclic graph of the processes showing parent/child relationship, and then traverses down the graph to execute the processes in parallel, taking into account the data and control dependencies. Child processes only start executing when their parents have finished.
 

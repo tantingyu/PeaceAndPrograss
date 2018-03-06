@@ -1,9 +1,9 @@
 # PeaceAndPrograss
 
-<h2>Purpose:<br></h2>
+<h2>Purpose<br></h2>
 <p>This program first generates a directed acyclic graph of the processes showing parent/child relationship, and then traverses down the graph to execute the processes in parallel, taking into account the data and control dependencies. Child processes only start executing when their parents have finished.
 
-<h2>How To Compile:<br></h2>
+<h2>How To Compile<br></h2>
 <h4>Step 1: Downloading the code <br></h4>
 <p>To clone this github repo to your local storage, you can either download the zip folder and extract the contents to your preferred folder, or use your terminal to clone the repo. <br> 
 Here's a helpful guide: https://help.github.com/articles/cloning-a-repository/ </p>
@@ -36,4 +36,14 @@ E.g.<br>
 </ul>
 <p>If you receive a "File not found" error for the test case, you can try moving the test case from  the PeaceandPrograss folder to the PeaceAndPrograss/src/justice folder. <br></p>
 
-<h2>What It Does:</h2>
+<h2>What It Does</h2>
+<p>
+	<ul>
+		1. The input file is written in this format:<code>&lt;program name with arguments&gt; : &lt;child nodes IDs&gt; : &lt;input&gt; : &lt;output&gt;</code><br>
+		2. The program parses the input file to generate a ProcessGraph, which prints out details of every node under<code>Graph info:</code><br>
+		3. The program enters a loop to traverse all the nodes in the graph, keeping a record of unexecuted nodes. <br>
+		4. Of the unexecuted nodes, the ones that are runnable will be executed with a new thread. The program keeps track of threads that are currently running but not executed yet, by checking whether the thread was newly created or not.  <br>
+		5. Threads that are finished executing will no longer be included as an unexecuted node in the next loop.
+		6. When the list of unexecuted nodes is empty, the program will exit the loop as all processes are executed and successfully run. <br>
+	</ul>
+</p>

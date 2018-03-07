@@ -1,9 +1,9 @@
 # PeaceAndPrograss
 
-<pre><code>/* Programming Assignment 1
- &#42; Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)
- &#42; Date: 06/03/2018
- */</code></pre>
+<p> Programming Assignment 1<br>
+Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)<br>
+Date: 06/03/2018<br>
+</p>
  
 <h2>Purpose<br></h2>
 <p>This program first generates a directed acyclic graph of the processes showing parent/child relationship, and then traverses down the graph to execute the processes in parallel, taking into account the data and control dependencies. Child processes only start executing when their parents have finished.
@@ -14,8 +14,8 @@
 Here's a helpful guide: https://help.github.com/articles/cloning-a-repository/ </p>
 
 <h4>Step 2: Accessing input files</h4>
-<p>There are several test cases in "src/justic/testinputs" included for you to try from: <code>"graph-file"</code>,<code>"graph-file1"</code>,<code>"graph-file2"</code>, <code>"test1.txt"</code>,<code>"test2.txt"</code><br>
-Remember to move the test input file into the justice folder before running the code! <br>
+<p>There are several test cases in <samp>"src/justice/testinputs"</samp> included for you to try from: <code>"graph-file"</code>,<code>"graph-file1"</code>,<code>"graph-file2"</code>, <code>"test1.txt"</code>,<code>"test2.txt"</code><br>
+Remember to move the test input file into the <samp>/justice</samp> folder before running the code! <br>
 Additionally, you can add your own input files in this format:<code>&lt;program name with arguments&gt; : &lt;child nodes IDs&gt; : &lt;input&gt; : &lt;output&gt;</code><br>
 </p>
 

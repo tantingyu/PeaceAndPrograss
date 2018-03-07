@@ -1,8 +1,5 @@
 # PeaceAndPrograss
 
-<<<<<<< HEAD
-Purpose:
-=======
 <p> Programming Assignment 1<br>
 Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)<br>
 Date: 06/03/2018<br>
@@ -10,16 +7,15 @@ Date: 06/03/2018<br>
  
 <h2>Purpose<br></h2>
 <p>This program first generates a directed acyclic graph of the processes showing parent/child relationship, and then traverses down the graph to execute the processes in parallel, taking into account the data and control dependencies. Child processes only start executing when their parents have finished.
->>>>>>> branch 'lok' of https://github.com/tantingyu/PeaceAndPrograss.git
 
-How To Compile:
+<h2>How To Compile<br></h2>
+<h4>Step 1: Downloading the code <br></h4>
+<p>To clone this github repo to your local storage, you can either download the zip folder and extract the contents to your preferred folder, or use your terminal to clone the repo. <br> 
+Here's a helpful guide: https://help.github.com/articles/cloning-a-repository/ </p>
 
-<<<<<<< HEAD
-What It Does:
-=======
 <h4>Step 2: Accessing input files</h4>
 <p>There are several test cases in <samp>"src/justice/testinputs"</samp> included for you to try from: <code>"graph-file"</code>,<code>"graph-file1"</code>,<code>"graph-file2"</code>, <code>"test1.txt"</code>,<code>"test2.txt"</code><br>
-Remember to move the test input file into the <samp>/justice</samp> folder before running the code! <br>
+<b>Remember to move the test input file into the <samp>/justice</samp> folder before running the code! </b><br>
 Additionally, you can add your own input files in this format:<code>&lt;program name with arguments&gt; : &lt;child nodes IDs&gt; : &lt;input&gt; : &lt;output&gt;</code><br>
 </p>
 
@@ -47,4 +43,3 @@ $ java ProcessManagement test1.txt
 		9. Upon completion of all threads, the system will print <samp>"All processes finished successfully"</samp>  <br>
 	</ul>
 </p>
->>>>>>> branch 'lok' of https://github.com/tantingyu/PeaceAndPrograss.git

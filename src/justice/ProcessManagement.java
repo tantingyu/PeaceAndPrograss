@@ -9,11 +9,13 @@ public class ProcessManagement {
     private static File currentDirectory;	// working directory
     private static File instructionSet;		// instructions file
     
-    public static List<NodeThread> threads;	// node threads
+    public static List<NodeThread> threads;
+    public static Object lock;					// resource lock
 
     public static void main(String[] args) throws InterruptedException {
     	currentDirectory = new File(System.getProperty("user.dir"));
     	instructionSet = new File("graph-file");
+    	lock = new Object();
     	
     	// create a ProcessGraph from the instructions file
         ParseFile.generateGraph(new File(currentDirectory.getAbsolutePath() 
@@ -36,16 +38,16 @@ public class ProcessManagement {
 	        	break;
 	        }
 	        
-		// disqualify nodes that are awaiting dependencies
-		List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
-		// start nodes that are eligible to run
-		for (ProcessGraphNode node : runnableNodes) {
-			NodeThread thread = threads.get(node.getNodeId());
-			// ensure that threads are executed only once
-			if (thread.getState() == Thread.State.NEW) {
-				thread.start();
+			// disqualify nodes that are awaiting dependencies
+			List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
+			// start nodes that are eligible to run
+			for (ProcessGraphNode node : runnableNodes) {
+				NodeThread thread = threads.get(node.getNodeId());
+				// ensure that threads are executed only once
+				if (thread.getState() == Thread.State.NEW) {
+					thread.start();
+				}
 			}
-		}
 	    }
         System.out.println("\nAll processes finished successfully");
     }

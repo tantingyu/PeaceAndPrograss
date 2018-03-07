@@ -27,8 +27,7 @@ class NodeThread extends Thread {
     		}
     		
     		// read and display console output
-    		BufferedReader br = new BufferedReader(new 
-					InputStreamReader(pb.start().getInputStream()));
+    		BufferedReader br = new BufferedReader(new InputStreamReader(pb.start().getInputStream()));
 			for (String line; (line = br.readLine()) != null;) {
 				System.out.println(line);
 			}

@@ -1,8 +1,11 @@
-package justice;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+/* Programming Assignment 1
+ * Authors: Tan Ting Yu (1002169) and Chong Lok Swen(1002468)
+ * Date: 06/03/2018
+ */
 
 class NodeThread extends Thread {
 	

@@ -40,21 +40,21 @@ public class ProcessManagement {
         	
         	// retrieve unexecuted nodes, exit loop if none
 	        List<ProcessGraphNode> unexecutedNodes = unexecutedNodes(ProcessGraph.nodes);
-	        if (unexecutedNodes.isEmpty()){
+	        if (unexecutedNodes.isEmpty()) {
 	        	break;
 	        }
 	        
-			// disqualify nodes that are awaiting dependencies
-			List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
-			// start nodes that are eligible to run
-			for (ProcessGraphNode node : runnableNodes) {
-				NodeThread thread = threads.get(node.getNodeId());
-				// ensure that threads are executed only once
-				if (thread.getState() == Thread.State.NEW) {
-					thread.start();
-				}
+		// disqualify nodes that are awaiting dependencies
+		List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
+		// start nodes that are eligible to run
+		for (ProcessGraphNode node : runnableNodes) {
+			NodeThread thread = threads.get(node.getNodeId());
+			// ensure that threads are executed only once
+			if (thread.getState() == Thread.State.NEW) {
+				thread.start();
 			}
-	    }
+		}
+	}
         System.out.println("\nAll processes finished successfully");
     }
     

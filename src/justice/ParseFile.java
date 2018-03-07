@@ -1,17 +1,19 @@
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+package justice;
 
 /* Programming Assignment 1
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
  * Date: 06/03/2018
  */
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class ParseFile {
 	
     // generates a ProcessGraph from a given input file
-    public static void generateGraph(File inputFile) {
+    public static boolean generateGraph(File inputFile) {
         try {
         	List<Integer> edgeParents = new ArrayList<Integer>();
             List<Integer> edgeChildren = new ArrayList<Integer>();
@@ -42,7 +44,13 @@ public class ParseFile {
                 // set command
                 ProcessGraph.nodes.get(index).setCommand(quatiles[0]);
                 // set input file
-                ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
+                File redirInp = new File(quatiles[2]);
+                if (redirInp.exists() || quatiles[2].equals("stdin")) {
+                	ProcessGraph.nodes.get(index).setInputFile(new File(quatiles[2]));
+                } else {
+                	System.out.println("Error in Node " + index + ": Invalid input file");
+                	return false;
+                }
                 // set output file
                 ProcessGraph.nodes.get(index).setOutputFile(new File(quatiles[3]));
                 index += 1;
@@ -70,9 +78,9 @@ public class ParseFile {
                 }
             }
         } catch (Exception e){
-            System.out.println("File not found");
             e.printStackTrace();
         }
+        return true;
     }
 }
 

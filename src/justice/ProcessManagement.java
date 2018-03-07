@@ -1,11 +1,13 @@
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+package justice;
 
 /* Programming Assignment 1
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
  * Date: 06/03/2018
  */
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProcessManagement {
 	
@@ -16,11 +18,14 @@ public class ProcessManagement {
 
     public static void main(String[] args) throws InterruptedException {
     	currentDirectory = new File(System.getProperty("user.dir"));
-    	instructionSet = new File(args[0]);
+    	instructionSet = new File("test2.txt");
     	
     	// create a ProcessGraph from the instructions file
-        ParseFile.generateGraph(new File(currentDirectory.getAbsolutePath() 
+        boolean parse = ParseFile.generateGraph(new File(currentDirectory.getAbsolutePath() 
         		+ "/" + instructionSet));
+        if (!parse) {
+        	return;
+        }
         ProcessGraph.printGraph();
         
         // create threads for every node in the ProcessGraph
@@ -39,22 +44,21 @@ public class ProcessManagement {
 	        	break;
 	        }
 	        
-		// disqualify nodes that are awaiting dependencies
-		List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
-		// start nodes that are eligible to run
-		for (ProcessGraphNode node : runnableNodes) {
-			NodeThread thread = threads.get(node.getNodeId());
-			// ensure that threads are executed only once
-			if (thread.getState() == Thread.State.NEW) {
-				thread.start();
+			// disqualify nodes that are awaiting dependencies
+			List<ProcessGraphNode> runnableNodes = markRunnableNodes(unexecutedNodes);
+			// start nodes that are eligible to run
+			for (ProcessGraphNode node : runnableNodes) {
+				NodeThread thread = threads.get(node.getNodeId());
+				// ensure that threads are executed only once
+				if (thread.getState() == Thread.State.NEW) {
+					thread.start();
+				}
 			}
-		}
 	    }
         System.out.println("\nAll processes finished successfully");
     }
     
-    /*
-     * Checks for unexecuted nodes in the ProcessGraph and 
+    /* Checks for unexecuted nodes in the ProcessGraph and 
      * stores them in a list
      * @param allNodes - list of all nodes in the ProcessGraph
      * @return list of unexecuted nodes in the ProcessGraph
@@ -70,8 +74,7 @@ public class ProcessManagement {
     	return unexecutedNodes;
     }
     
-    /*
-     * Checks for runnable nodes from a list of unexecuted nodes and 
+    /* Checks for runnable nodes from a list of unexecuted nodes and 
      * stores them in a new list
      * @param unexecutedNodes - list of unexecuted nodes in the ProcessGraph
      * @return list of runnable nodes in the ProcessGraph

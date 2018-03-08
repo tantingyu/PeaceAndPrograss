@@ -1,5 +1,3 @@
-package justice;
-
 /* Programming Assignment 1
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
  * Date: 06/03/2018
@@ -18,7 +16,7 @@ public class ProcessManagement {
 
     public static void main(String[] args) throws InterruptedException {
     	currentDirectory = new File(System.getProperty("user.dir"));
-    	instructionSet = new File("test2.txt");
+    	instructionSet = new File(args[0]);
     	
     	// create a ProcessGraph from the instructions file
         boolean parse = ParseFile.generateGraph(new File(currentDirectory.getAbsolutePath() 

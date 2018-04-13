@@ -8,22 +8,26 @@ package equality;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 
 public class ServerWithSecurity {
 	
 	static final int SOCKET_NUMBER = 4321;
+	static final String CERT_DIRECTORY = "secure-file-transfer/privateServer.der";
 	static Cipher cipher;
 	static int cp;
 	
@@ -33,12 +37,10 @@ public class ServerWithSecurity {
 		try {
 			ServerSocket welcomeSocket = new ServerSocket(SOCKET_NUMBER);
 			clientConnections = new ArrayList<>();
-	
-			while (true) {
-				ConnectionSocket newClient = new ConnectionSocket(welcomeSocket.accept());
-				clientConnections.add(newClient);
-				newClient.start();
-			}
+			new ClientWithSecurity().start();
+			ConnectionSocket newClient = new ConnectionSocket(welcomeSocket.accept());
+			clientConnections.add(newClient);
+			newClient.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,6 +69,29 @@ public class ServerWithSecurity {
 				
 				/* TODO: Receive client hello, send certificate. */
 				
+				// receive client hello
+				int numBytes = fromClient.readInt();
+				byte[] certRequest = new byte[numBytes];
+				fromClient.readFully(certRequest);
+				System.out.println("Message from Client: " + new String(certRequest));
+				
+				// generate certificate object from file
+				InputStream fileInputStream = new FileInputStream(CERT_DIRECTORY);
+				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(fileInputStream);
+				
+				// send certificate to client
+				byte[] encodedCert = cert.getEncoded();
+				toClient.writeInt(encodedCert.length);
+				toClient.write(encodedCert);
+				toClient.flush();
+				
+				// receive acknowledgement
+				numBytes = fromClient.readInt();
+				byte[] handshake = new byte[numBytes];
+				fromClient.readFully(handshake);
+				System.out.println("Message from Client: " + new String(handshake));
+				
 				/** 
 				 * TODO: 
 				 * CP-1 Generate RSA key-pair, send public key to client.
@@ -75,7 +100,7 @@ public class ServerWithSecurity {
 				if (cp == 1) {
 					// configure cipher
 					cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-					
+
 					// generate RSA key-pair
 					KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 					keyGen.initialize(1024);
@@ -89,7 +114,8 @@ public class ServerWithSecurity {
 					toClient.write(publicKey.getEncoded());
 					toClient.flush();
 				} else if (cp == 2) {
-					
+					// configure cipher
+					cipher = Cipher.getInstance("AES/ECB/PKCS1Padding");
 				}
 				
 				// secure connection established, ready to accept file
@@ -118,7 +144,6 @@ public class ServerWithSecurity {
 			int numBytes = fromClient.readInt();
 			byte[] filename = new byte[numBytes];
 			fromClient.readFully(filename);
-			filename = decryptData(filename);
 			
 			fileOutputStream = new FileOutputStream("recv/" + new String(filename, 0, numBytes));
 			bufferedFileOutputStream = new BufferedOutputStream(fileOutputStream);
@@ -128,8 +153,8 @@ public class ServerWithSecurity {
 			int numBytes = fromClient.readInt();
 			byte[] block = new byte[numBytes];
 			fromClient.readFully(block);
-			block = decryptData(block);
 			
+			block = decryptData(block);
 			if (numBytes > 0)
 				bufferedFileOutputStream.write(block, 0, numBytes);
 		}
@@ -141,7 +166,12 @@ public class ServerWithSecurity {
 			toClient.close();
 			connectionSocket.close();
 		}
-
+		
+		byte[] encryptData(byte[] block) throws Exception {
+			cipher.init(Cipher.ENCRYPT_MODE, sessionKey);
+			return cipher.doFinal(block);
+		}
+		
 		byte[] decryptData(byte[] block) throws Exception {
 			cipher.init(Cipher.DECRYPT_MODE, sessionKey);
 			return cipher.doFinal(block);

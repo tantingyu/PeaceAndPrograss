@@ -12,6 +12,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+
+import javax.crypto.Cipher;
 
 public class ClientWithSecurity {
 	
@@ -21,7 +26,9 @@ public class ClientWithSecurity {
 	static Socket clientSocket;
 	static DataOutputStream toServer;
 	static DataInputStream fromServer;
+	
 	static Key sessionKey; // RSA public key, or AES symmetric key
+	static Cipher cipher;
 	
 	public static void main(String[] args) {
 		long timeStarted = System.nanoTime();
@@ -30,8 +37,8 @@ public class ClientWithSecurity {
 
 			// connect to server and get the input and output streams
 			clientSocket = new Socket("localhost", 4321);
-			toServer = new DataOutputStream(clientSocket.getOutputStream());
 			fromServer = new DataInputStream(clientSocket.getInputStream());
+			toServer = new DataOutputStream(clientSocket.getOutputStream());
 			
 			/* TODO: Send certificate request and wait for response. */
 			
@@ -43,13 +50,25 @@ public class ClientWithSecurity {
 			 * CP-2	Generate AES symmetric key for secure file transfer, 
 			 * 		encrypt with server's public key. 
 			 */
+			if (cp == 1) {
+				// configure cipher
+				cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+				
+				// receive and decode RSA public key from server
+				byte[] keyInBytes = new byte[117];
+				fromServer.readFully(keyInBytes);
+				EncodedKeySpec publicKeySpec = new PKCS8EncodedKeySpec(keyInBytes);
+				sessionKey = KeyFactory.getInstance("RSA").generatePublic(publicKeySpec);
+			} else if (cp == 2) {
+				
+			}
 
 			System.out.println("Sending file...");
 			sendFile();
 			
 			System.out.println("Closing connection...");
 	        closeConnection();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -57,7 +76,7 @@ public class ClientWithSecurity {
 		System.out.println("Program took: " + timeTaken/1000000.0 + "ms to run");
 	}
 	
-	static void sendFile() throws IOException {
+	static void sendFile() throws Exception {
 		// send the filename
 		
 		/**
@@ -93,11 +112,7 @@ public class ClientWithSecurity {
 			 * CP-1 Encrypt with RSA public key.
 			 * CP-2 Encrpyt with AES symmetric key.
 			 */
-			if (cp == 1) {
-				// encryptRSA(block)
-			} else if (cp == 2) {
-				// encryptAES(block)
-			}
+			fromFileBuffer = encryptData(fromFileBuffer);
 			
 			toServer.writeInt(1);
 			toServer.writeInt(numBytes);
@@ -117,11 +132,8 @@ public class ClientWithSecurity {
         clientSocket.close();
 	}
 	
-	byte[] encryptRSA(byte[] block) {
-		return new byte[0];
-	}
-	
-	byte[] encryptAES(byte[] block) {
-		return new byte[0];
+	static byte[] encryptData(byte[] block) throws Exception {
+		cipher.init(Cipher.ENCRYPT_MODE, sessionKey);
+		return cipher.doFinal(block);
 	}
 }

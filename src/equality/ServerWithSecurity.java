@@ -2,7 +2,7 @@ package equality;
 
 /* Programming Assignment 2
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
- * Date: 13/04/2018
+ * Date: -
  */
 
 import java.io.BufferedOutputStream;
@@ -19,6 +19,8 @@ import java.util.List;
 public class ServerWithSecurity {
 	
 	static final int SOCKET_NUMBER = 4321;
+	static int cp;
+	
 	static List<ConnectionSocket> clientConnections;
 	
 	public static void main(String[] args) {
@@ -39,7 +41,7 @@ public class ServerWithSecurity {
 	static class ConnectionSocket extends Thread {
 		
 		Socket connectionSocket;
-		Key sessionKey;
+		Key sessionKey;	// RSA public key, or AES symmetric key
 		
 		DataInputStream fromClient;
 		DataOutputStream toClient;
@@ -58,7 +60,11 @@ public class ServerWithSecurity {
 				
 				/* TODO: Receive client hello, send certificate. */
 				
-				/* TODO: Receive one-time symmetric key from client. */
+				/** 
+				 * TODO: 
+				 * CP-1 Generate RSA key-pair, send public key to client.
+				 * CP-2	Receive AES symmetric key from client. 
+				 */
 				
 				// secure connection established, ready to accept file
 				while (!connectionSocket.isClosed()) {
@@ -83,7 +89,16 @@ public class ServerWithSecurity {
 		}
 		
 		void receiveFilename() throws IOException {			
-			/* TODO: Decrypt data with private key. */
+			/** 
+			 * TODO:
+			 * CP-1	Decrypt data with RSA private key (use method decryptRSA)
+			 * CP-2	Decrypt data with AES symmetric key (use method decryptAES)
+			 */
+			if (cp == 1) {
+				// decryptRSA(block)
+			} else if (cp == 2) {
+				// decryptAES(block)
+			}
 			
 			int numBytes = fromClient.readInt();
 			byte[] filename = new byte[numBytes];
@@ -94,10 +109,19 @@ public class ServerWithSecurity {
 		}
 		
 		void writeDataToFile() throws IOException {
-			/* TODO: Decrypt data with private key. */
+			/** 
+			 * TODO:
+			 * CP-1	Decrypt data with RSA private key.
+			 * CP-2	Decrypt data with AES symmetric key.
+			 */
+			if (cp == 1) {
+				// decryptRSA(block)
+			} else if (cp == 2) {
+				// decryptAES(block)
+			}
 			
 			int numBytes = fromClient.readInt();
-			byte [] block = new byte[numBytes];
+			byte[] block = new byte[numBytes];
 			fromClient.readFully(block);
 			
 			if (numBytes > 0)
@@ -110,6 +134,14 @@ public class ServerWithSecurity {
 			fromClient.close();
 			toClient.close();
 			connectionSocket.close();
+		}
+
+		byte[] decryptRSA(byte[] block) {
+			return new byte[0];
+		}
+		
+		byte[] decryptAES(byte[] block) {
+			return new byte[0];
 		}
 	}
 }

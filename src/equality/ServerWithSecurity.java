@@ -13,12 +13,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 
 public class ServerWithSecurity {
 	
 	static final int SOCKET_NUMBER = 4321;
+	static Cipher cipher;
 	static int cp;
 	
 	static List<ConnectionSocket> clientConnections;
@@ -41,7 +47,8 @@ public class ServerWithSecurity {
 	static class ConnectionSocket extends Thread {
 		
 		Socket connectionSocket;
-		Key sessionKey;	// RSA public key, or AES symmetric key
+		Key sessionKey;	// RSA private key, or AES symmetric key
+		Cipher cipher;
 		
 		DataInputStream fromClient;
 		DataOutputStream toClient;
@@ -65,6 +72,25 @@ public class ServerWithSecurity {
 				 * CP-1 Generate RSA key-pair, send public key to client.
 				 * CP-2	Receive AES symmetric key from client. 
 				 */
+				if (cp == 1) {
+					// configure cipher
+					cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+					
+					// generate RSA key-pair
+					KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+					keyGen.initialize(1024);
+					
+					KeyPair keyPair = keyGen.generateKeyPair();
+					Key publicKey = keyPair.getPublic();
+					sessionKey = keyPair.getPrivate();
+					
+					// send public key to client
+					toClient.writeInt(117);
+					toClient.write(publicKey.getEncoded());
+					toClient.flush();
+				} else if (cp == 2) {
+					
+				}
 				
 				// secure connection established, ready to accept file
 				while (!connectionSocket.isClosed()) {
@@ -83,46 +109,26 @@ public class ServerWithSecurity {
 						closeConnection();
 					}
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		
-		void receiveFilename() throws IOException {			
-			/** 
-			 * TODO:
-			 * CP-1	Decrypt data with RSA private key (use method decryptRSA)
-			 * CP-2	Decrypt data with AES symmetric key (use method decryptAES)
-			 */
-			if (cp == 1) {
-				// decryptRSA(block)
-			} else if (cp == 2) {
-				// decryptAES(block)
-			}
-			
+		void receiveFilename() throws Exception {			
 			int numBytes = fromClient.readInt();
 			byte[] filename = new byte[numBytes];
 			fromClient.readFully(filename);
-
+			filename = decryptData(filename);
+			
 			fileOutputStream = new FileOutputStream("recv/" + new String(filename, 0, numBytes));
 			bufferedFileOutputStream = new BufferedOutputStream(fileOutputStream);
 		}
 		
-		void writeDataToFile() throws IOException {
-			/** 
-			 * TODO:
-			 * CP-1	Decrypt data with RSA private key.
-			 * CP-2	Decrypt data with AES symmetric key.
-			 */
-			if (cp == 1) {
-				// decryptRSA(block)
-			} else if (cp == 2) {
-				// decryptAES(block)
-			}
-			
+		void writeDataToFile() throws Exception {			
 			int numBytes = fromClient.readInt();
 			byte[] block = new byte[numBytes];
 			fromClient.readFully(block);
+			block = decryptData(block);
 			
 			if (numBytes > 0)
 				bufferedFileOutputStream.write(block, 0, numBytes);
@@ -136,12 +142,9 @@ public class ServerWithSecurity {
 			connectionSocket.close();
 		}
 
-		byte[] decryptRSA(byte[] block) {
-			return new byte[0];
-		}
-		
-		byte[] decryptAES(byte[] block) {
-			return new byte[0];
+		byte[] decryptData(byte[] block) throws Exception {
+			cipher.init(Cipher.DECRYPT_MODE, sessionKey);
+			return cipher.doFinal(block);
 		}
 	}
 }

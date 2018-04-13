@@ -25,29 +25,28 @@ public class ServerWithoutSecurity {
 			toClient = new DataOutputStream(connectionSocket.getOutputStream());
 
 			while (!connectionSocket.isClosed()) {
-
 				int packetType = fromClient.readInt();
 
-				// If the packet is for transferring the filename
+				// packet is for transferring the filename
 				if (packetType == 0) {
 					System.out.println("Receiving file...");
-
+					
 					int numBytes = fromClient.readInt();
 					byte [] filename = new byte[numBytes];
-					fromClient.read(filename);
+					fromClient.readFully(filename);
 
-					fileOutputStream = new FileOutputStream("recv/"+new String(filename, 0, numBytes));
+					fileOutputStream = new FileOutputStream("recv/" + new String(filename, 0, numBytes));
 					bufferedFileOutputStream = new BufferedOutputStream(fileOutputStream);
-
-				// If the packet is for transferring a chunk of the file
+					
+				// packet is for transferring a chunk of the file
 				} else if (packetType == 1) {
 					int numBytes = fromClient.readInt();
 					byte [] block = new byte[numBytes];
-					fromClient.read(block);
-
+					fromClient.readFully(block);
+					
 					if (numBytes > 0)
 						bufferedFileOutputStream.write(block, 0, numBytes);
-
+					
 				} else if (packetType == 2) {
 					System.out.println("Closing connection...");
 					if (bufferedFileOutputStream != null) bufferedFileOutputStream.close();
@@ -56,7 +55,6 @@ public class ServerWithoutSecurity {
 					toClient.close();
 					connectionSocket.close();
 				}
-
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

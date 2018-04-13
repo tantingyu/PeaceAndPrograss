@@ -56,6 +56,4 @@ public class ProcessGraph {
             		+ " Executed: " + node.isExecuted());
         }
     }
-
-
 }

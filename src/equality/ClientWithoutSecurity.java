@@ -40,7 +40,7 @@ public class ClientWithoutSecurity {
 			fileInputStream = new FileInputStream(filename);
 			bufferedFileInputStream = new BufferedInputStream(fileInputStream);
 
-	        byte [] fromFileBuffer = new byte[117];
+	        byte[] fromFileBuffer = new byte[117];
 
 	        // send the file
 	        for (boolean fileEnded = false; !fileEnded;) {

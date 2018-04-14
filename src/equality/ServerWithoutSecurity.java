@@ -32,7 +32,7 @@ public class ServerWithoutSecurity {
 					System.out.println("Receiving file...");
 					
 					int numBytes = fromClient.readInt();
-					byte [] filename = new byte[numBytes];
+					byte[] filename = new byte[numBytes];
 					fromClient.readFully(filename);
 
 					fileOutputStream = new FileOutputStream("recv/" + new String(filename, 0, numBytes));

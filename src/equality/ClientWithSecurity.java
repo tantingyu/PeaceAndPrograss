@@ -51,6 +51,8 @@ public class ClientWithSecurity extends Thread {
 		try {
 			int numBytes = 0;
 			
+			/* ------ START OF AUTHENTICATION PROTOCOL ------ */
+			
 			// request server's certificate
 			print("Requesting server's certificate.");
 			byte[] certRequest  = "Please send me your certificate.".getBytes();
@@ -74,6 +76,10 @@ public class ClientWithSecurity extends Thread {
 			toServer.writeInt(handshake.length);
 			toServer.write(handshake);
 			toServer.flush();
+			
+			/* ------ END OF AUTHENTICATION PROTOCOL ------ */
+			
+			/* ------ START OF CONFIDENTIALTIY PROTOCOL ------ */
 			
 			// configure cipher
 			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
@@ -99,6 +105,8 @@ public class ClientWithSecurity extends Thread {
 				// reconfigure cipher
 				cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			}
+			
+			/* ------ END OF CONFIDENTIALITY PROTOCOL ------ */
 			
 			File file = new File(FILE_NAME); 
 			print("Length of File: " + file.length());

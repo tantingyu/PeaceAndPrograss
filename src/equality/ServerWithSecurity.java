@@ -11,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.Key;
@@ -20,7 +19,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -76,7 +74,9 @@ public class ServerWithSecurity extends Thread {
 				fromClient = new DataInputStream(connectionSocket.getInputStream());
 				toClient = new DataOutputStream(connectionSocket.getOutputStream());
 				int numBytes = 0;
-
+				
+				/* ------ START OF AUTHENTICATION PROTOCOL ------ */
+				
 				// receive client's hello
 				numBytes = fromClient.readInt();
 				byte[] certRequest = new byte[numBytes];
@@ -95,6 +95,10 @@ public class ServerWithSecurity extends Thread {
 				byte[] handshake = new byte[numBytes];
 				fromClient.readFully(handshake);
 				print("Message from Client: " + new String(handshake));
+				
+				/* ------ END OF AUTHENTICATION PROTOCOL ------ */
+				
+				/* ------ START OF CONFIDENTIALITY PROTOCOL ------ */
 				
 				// configure cipher
 				cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");	
@@ -122,6 +126,8 @@ public class ServerWithSecurity extends Thread {
 					// reconfigure cipher
 					cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 				}
+				
+				/* ------ END OF CONFIDENTIALTIY PROTOCOL ------ */
 				
 				// begin file transfer
 				downloadFile();

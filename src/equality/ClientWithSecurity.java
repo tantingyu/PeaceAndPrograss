@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.Socket;
 import java.security.Key;
@@ -26,7 +27,7 @@ public class ClientWithSecurity extends Thread {
 	static final int PORT_NUMBER = 4321;
 	static final int CP = 1;
 	
-	static final String FILE_NAME = "rr.txt";
+	static final String FILE_NAME = "dataforfit.txt";
 	static final String CA_CERT = "CA.crt";
 	public int cp = 1;
 	
@@ -99,6 +100,9 @@ public class ClientWithSecurity extends Thread {
 				cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			}
 			
+			File file = new File(FILE_NAME); 
+			print("Length of File: " + file.length());
+			
 			// send file name
 			print("Starting secure file transfer, sending file name.");
 			byte[] encryptedFileName = encryptData(FILE_NAME.getBytes(), sessionKey);
@@ -169,6 +173,8 @@ public class ClientWithSecurity extends Thread {
 	
 	public static void main(String[] args) throws Exception {
 		ClientWithSecurity client = new ClientWithSecurity(SERVER_IP, PORT_NUMBER, CP);
+		// ClientWithSecurity client = new ClientWithSecurity(args[0], Integer.parseInt(args[1]), 
+		//		Integer.parseInt(args[2]));
 		client.start();
 	}
 }

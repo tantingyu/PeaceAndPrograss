@@ -200,6 +200,8 @@ public class ServerWithSecurity extends Thread {
 	
 	public static void main(String[] args) throws Exception {
 		ServerWithSecurity server = new ServerWithSecurity(PORT_NUMBER, CP);
+		// ServerWithSecurity server = new ServerWithSecurity(Integer.parseInt(args[0]), 
+		//		Integer.parseInt(args[1]));
 		server.start();
 	}
 }

@@ -75,6 +75,10 @@ public class ClientWithSecurity extends Thread {
 				sessionKey = rsaPublicKey;
 			// blocks will be encrypted using client's AES symmetric key
 			} else if (cp == 2) {
+				// receive AES key request
+				byte[] keyRequest = receiveMessage();
+				print("Message from Server: " + new String(keyRequest));
+				
 				// generate AES symmetric key for file transfer
 				KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 				keyGen.init(128);
@@ -101,9 +105,18 @@ public class ClientWithSecurity extends Thread {
 			// upload file
 			uploadFile();
 			
+			// notify upload complete
 			print("Upload complete, notifying server");
 			byte[] notifyComplete = "File upload complete.".getBytes();
 			sendMessage(notifyComplete, 2);
+			
+			// receive notification that server has completed download
+			byte[] toClose = receiveMessage();
+			print("Message from Server: " + new String(toClose));
+			
+			// close connection
+			print("Closing connection");
+			clientSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -129,7 +142,8 @@ public class ClientWithSecurity extends Thread {
 	
 	void uploadFile() throws Exception {
 		// initialize input streams
-		FileInputStream fileInputStream = new FileInputStream(fileName);
+		FileInputStream fileInputStream = new FileInputStream(System.getProperty("user.dir") 
+				+ "/" + fileName);
 		BufferedInputStream bufferedFileInputStream = 
 				new BufferedInputStream(fileInputStream);
 		byte[] fromFileBuffer = new byte[117];

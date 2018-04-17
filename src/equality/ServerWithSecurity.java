@@ -117,8 +117,13 @@ public class ServerWithSecurity extends Thread {
 				// begin file transfer
 				downloadFile();
 				
+				// notify download complete
+				print("Download complete, notifying client");
+				byte[] notifyComplete = "File download complete.".getBytes();
+				sendMessage(notifyComplete);
+				
 				// close connection
-				print("Download complete, closing connection");
+				print("Closing connection");
 				connectionSocket.close();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -152,8 +157,8 @@ public class ServerWithSecurity extends Thread {
 					byte[] decryptedFileName = decryptData(receiveMessage(), sessionKey);
 					
 					// initialize output streams
-					fileOutputStream = new FileOutputStream("recv/" + 
-							new String(decryptedFileName, 0, decryptedFileName.length));
+					fileOutputStream = new FileOutputStream(System.getProperty("user.dir") 
+							+ "/recv/" + new String(decryptedFileName, 0, decryptedFileName.length));
 					bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
 				} else if (packetType == 1) {
 					// receive file data block

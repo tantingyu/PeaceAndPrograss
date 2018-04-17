@@ -2,7 +2,7 @@ package equality;
 
 /* Programming Assignment 2
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
- * Date: -
+ * Date: 17/4/2018
  */
 
 import java.io.BufferedOutputStream;
@@ -70,63 +70,43 @@ public class ServerWithSecurity extends Thread {
 				fromClient = new DataInputStream(connectionSocket.getInputStream());
 				toClient = new DataOutputStream(connectionSocket.getOutputStream());
 				
-				/* ------ START OF AUTHENTICATION PROTOCOL ------ */
+				// ------ AUTHENTICATION PROTOCOL ------ //
+				
 				// receive client's hello
-				byte[] hello = receiveMessage();
-				print("Message from Client: " + new String(hello));
+				print("Message from Client: " + new String(receiveMessage()));
 				
 				// send certificate to client
 				print("Sending certificate to client");
-				byte[] serverCert = certificate.getEncoded();
-				sendMessage(serverCert);
+				sendMessage(certificate.getEncoded());
 				
 				// receive client's handshake
-				byte[] handshake = receiveMessage();
-				print("Message from Client: " + new String(handshake));
-				/* ------ END OF AUTHENTICATION PROTOCOL ------ */
+				int verified = fromClient.readInt();
+				print("Message from Client: " + new String(receiveMessage()));
+				if (verified == -2) return; // certificate verification failed
+
+				// ------ CONFIDENTIALITY PROTOCOL ------ //
 				
-				/* ------ START OF CONFIDENTIALITY PROTOCOL ------ */
-				// configure cipher
+				// configure cipher and set session key
 				cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");	
+				sessionKey = privateKey;
 				
-				// blocks will be encrypted using server's RSA public key
-				if (cp == 1) {
-					sessionKey = privateKey;
 				// blocks will be encrypted using client's AES symmetric key
-				} else if (cp == 2) {
-					// request client's AES symmetric key
-					print("Requesting client's AES symmetric key");
-					byte[] aesRequest = "Please send me your AES symmetric key.".getBytes();
-					sendMessage(aesRequest);
-					
-					// receive client's AES symmetric key
-					int numBytes = fromClient.readInt();
-					byte[] aesKeyEncrypted = new byte[128];
-					fromClient.readFully(aesKeyEncrypted, 0, 128);
-					print("Received client's AES symmetric key");
-					
-					// decrypt client's AES symmetric key using RSA private key
-					byte[] aesKeyDecrypted = decryptData(aesKeyEncrypted, privateKey);
-					
-					// reconfigure cipher and set session key
-					cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-					sessionKey = new SecretKeySpec(aesKeyDecrypted, 0, aesKeyDecrypted.length, "AES");
+				if (cp == 2) {
+					aesProtocol();
 				}
-				/* ------ END OF CONFIDENTIALTIY PROTOCOL ------ */
+
+				// ------ FILE TRANSFER ------ //
 				
-				// begin file transfer
+				// download file
 				downloadFile();
 				
 				// notify download complete
 				print("Download complete, notifying client");
-				byte[] notifyComplete = "File download complete.".getBytes();
-				sendMessage(notifyComplete);
-				
-				// close connection
-				print("Closing connection");
-				connectionSocket.close();
+				sendMessage("File download complete.".getBytes());
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				closeConnection();
 			}
 		}
 		
@@ -146,6 +126,25 @@ public class ServerWithSecurity extends Thread {
 
 			return KeyFactory.getInstance("RSA")
 					.generatePrivate(new PKCS8EncodedKeySpec(rsaPrivateKeyBytes));
+		}
+		
+		void aesProtocol() throws Exception {
+			// request client's AES symmetric key
+			print("Requesting client's AES symmetric key");
+			sendMessage("Please send me your AES symmetric key.".getBytes());
+			
+			// receive client's AES symmetric key
+			int numBytes = fromClient.readInt();
+			byte[] aesKeyEncrypted = new byte[128];
+			fromClient.readFully(aesKeyEncrypted, 0, 128);
+			print("Received client's AES symmetric key");
+			
+			// decrypt client's AES symmetric key using RSA private key
+			byte[] aesKeyDecrypted = decryptData(aesKeyEncrypted, privateKey);
+			
+			// reconfigure cipher and set session key
+			cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			sessionKey = new SecretKeySpec(aesKeyDecrypted, 0, aesKeyDecrypted.length, "AES");
 		}
 		
 		void downloadFile() throws Exception {
@@ -168,7 +167,7 @@ public class ServerWithSecurity extends Thread {
 					
 					if (numBytes > 0) {
 						byte[] decryptedBlock = decryptData(encryptedBlock, sessionKey);
-						bufferedOutputStream.write(decryptedBlock, 0, decryptedBlock.length);
+						bufferedOutputStream.write(decryptedBlock, 0, numBytes);
 					} 
 				} else if (packetType == 2) {
 					// receive notification that client has completed upload
@@ -199,6 +198,15 @@ public class ServerWithSecurity extends Thread {
 		byte[] decryptData(byte[] block, Key key) throws Exception {
 			cipher.init(Cipher.DECRYPT_MODE, key);
 			return cipher.doFinal(block);
+		}
+		
+		void closeConnection() {
+			try {
+				print("Closing connection");
+				connectionSocket.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

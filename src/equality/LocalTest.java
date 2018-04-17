@@ -2,7 +2,7 @@ package equality;
 
 /* Programming Assignment 2
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
- * Date: -
+ * Date: 17/4/2018
  */
 
 import java.util.Scanner;
@@ -12,7 +12,7 @@ public class LocalTest {
 	// change these fields as required
 	static final String SERVER_IP = "localhost";
 	static final int PORT_NUMBER = 4321;
-	static final String FILE_NAME = "dataforfit.txt";
+	static final String FILE_NAME = "rr.txt";
 	
 	public static void main(String[] args) throws Exception {
 		Scanner input = new Scanner(System.in);

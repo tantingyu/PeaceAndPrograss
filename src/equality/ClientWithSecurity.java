@@ -2,7 +2,7 @@ package equality;
 
 /* Programming Assignment 2
  * Authors: Tan Ting Yu (1002169) and Chong Lok Swen (1002468)
- * Date: -
+ * Date: 17/4/2018
  */
 
 import java.io.BufferedInputStream;
@@ -46,11 +46,11 @@ public class ClientWithSecurity extends Thread {
 	public void run() {
 		long timeStarted = System.nanoTime();
 		try {
-			/* ------ START OF AUTHENTICATION PROTOCOL ------ */
+			// ------ AUTHENTICATION PROTOCOL ------ //
+			
 			// request server's certificate
 			print("Requesting server's certificate");
-			byte[] certRequest  = "Please send me your certificate.".getBytes();
-			sendMessage(certRequest, -1);
+			sendMessage("Please send me your certificate.".getBytes(), -1);
 			
 			// receive server's certificate
 			byte[] serverCert = receiveMessage();
@@ -58,86 +58,90 @@ public class ClientWithSecurity extends Thread {
 			
 			// verify server's certificate using CA's public key and extract server's
 			// public key
-			Key rsaPublicKey = verifyCertificateExtractPublicKey(serverCert);
-	
+			sessionKey = verifyCertificateExtractPublicKey(serverCert);
+			if (sessionKey == null) {
+				// notify certification verification failed
+				print("Certificate verification failed, aborting");
+				sendMessage("Certificate invalid, bye.".getBytes(), -2);
+				return;
+			}
+			
 			// return server's handshake
 			print("Server's certificate verified, returning handshake");
-			byte[] handshake = "Your certificate has been verified.".getBytes();
-			sendMessage(handshake, -1);
-			/* ------ END OF AUTHENTICATION PROTOCOL ------ */
+			sendMessage("Your certificate has been verified.".getBytes(), 0);
+
+			// ------ CONFIDENTIALTIY PROTOCOL ------ //
 			
-			/* ------ START OF CONFIDENTIALTIY PROTOCOL ------ */
 			// configure cipher
 			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			
-			// blocks will be encrypted using server's RSA public key
-			if (cp == 1) {
-				sessionKey = rsaPublicKey;
-			// blocks will be encrypted using client's AES symmetric key
-			} else if (cp == 2) {
-				// receive AES key request
-				byte[] keyRequest = receiveMessage();
-				print("Message from Server: " + new String(keyRequest));
-				
-				// generate AES symmetric key for file transfer
-				KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-				keyGen.init(128);
-				Key aesKey = keyGen.generateKey();
-				
-				// encrypt AES symmetric key with RSA public key and send to server
-				print("Sending encrypted AES symmetric key to server");
-				byte[] aesKeyEncrypted = encryptData(aesKey.getEncoded(), rsaPublicKey);
-				sendMessage(aesKeyEncrypted, -1);
-				
-				// reconfigure cipher and set session key
-				cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-				sessionKey = aesKey;
+			// blocks will be encrypted using client's AES symmetric key instead
+			if (cp == 2) {
+				aesProtocol();
 			}
-			/* ------ END OF CONFIDENTIALITY PROTOCOL ------ */
+			
+			// ------ FILE TRANSFER ------ //
 			
 			print("Length of File: " + new File(fileName).length());
 			
 			// send file name
 			print("Starting secure file transfer, sending file name");
-			byte[] encryptedFileName = encryptData(fileName.getBytes(), sessionKey);
-			sendMessage(encryptedFileName, 0);
+			sendMessage(encryptData(fileName.getBytes(), sessionKey), 0);
 
 			// upload file
 			uploadFile();
 			
 			// notify upload complete
 			print("Upload complete, notifying server");
-			byte[] notifyComplete = "File upload complete.".getBytes();
-			sendMessage(notifyComplete, 2);
+			sendMessage("File upload complete.".getBytes(), 2);
 			
 			// receive notification that server has completed download
-			byte[] toClose = receiveMessage();
-			print("Message from Server: " + new String(toClose));
-			
-			// close connection
-			print("Closing connection");
-			clientSocket.close();
+			print("Message from Server: " + new String(receiveMessage()));
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection();
 		}
 		
 		long timeTaken = System.nanoTime() - timeStarted;
 		print("Transfer Time: " + timeTaken/1000000.0 + " ms");
 	}
 	
-	Key verifyCertificateExtractPublicKey(byte[] serverCertBytes) throws Exception {
-		// get public key from CA
-		Certificate caCert = CertificateFactory.getInstance("X.509")
-				.generateCertificate(new FileInputStream(CA_CERT));
-		Key caPublicKey = caCert.getPublicKey();
+	Key verifyCertificateExtractPublicKey(byte[] serverCertBytes) {
+		try {
+			// get public key from CA
+			Certificate caCert = CertificateFactory.getInstance("X.509")
+					.generateCertificate(new FileInputStream(CA_CERT));
+			Key caPublicKey = caCert.getPublicKey();
+			
+			// verify server's certificate
+			X509Certificate serverCert = (X509Certificate) CertificateFactory.getInstance("X.509")
+					.generateCertificate(new ByteArrayInputStream(serverCertBytes));
+			serverCert.checkValidity();
+			serverCert.verify((PublicKey) caPublicKey);
+	
+			return serverCert.getPublicKey();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	void aesProtocol() throws Exception {
+		// receive AES key request
+		print("Message from Server: " + new String(receiveMessage()));
 		
-		// verify server's certificate
-		X509Certificate serverCert = (X509Certificate) CertificateFactory.getInstance("X.509")
-				.generateCertificate(new ByteArrayInputStream(serverCertBytes));
-		serverCert.checkValidity();
-		serverCert.verify((PublicKey) caPublicKey);
-
-		return serverCert.getPublicKey();
+		// generate AES symmetric key for file transfer
+		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+		keyGen.init(128);
+		Key aesKey = keyGen.generateKey();
+		
+		// encrypt AES symmetric key with RSA public key and send to server
+		print("Sending encrypted AES symmetric key to server");
+		sendMessage(encryptData(aesKey.getEncoded(), sessionKey), -1);
+		
+		// reconfigure cipher and set session key
+		cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+		sessionKey = aesKey;
 	}
 	
 	void uploadFile() throws Exception {
@@ -155,7 +159,10 @@ public class ClientWithSecurity extends Thread {
 			fileEnded = numBytes < fromFileBuffer.length;
 			
 			byte[] encryptedData = encryptData(fromFileBuffer, sessionKey);
-			sendMessage(encryptedData, 1);
+			toServer.writeInt(1);
+			toServer.writeInt(numBytes);
+			toServer.write(encryptedData);
+			toServer.flush();
 		}
 
         // close input streams
@@ -182,6 +189,15 @@ public class ClientWithSecurity extends Thread {
 	byte[] encryptData(byte[] block, Key key) throws Exception {
 		cipher.init(Cipher.ENCRYPT_MODE, key);
 		return cipher.doFinal(block);
+	}
+	
+	void closeConnection() {
+		try {
+			print("Closing connection");
+			clientSocket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	void print(String message) {

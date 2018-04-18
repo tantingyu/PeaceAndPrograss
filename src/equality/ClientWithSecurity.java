@@ -60,7 +60,7 @@ public class ClientWithSecurity extends Thread {
 			// public key
 			sessionKey = verifyCertificateExtractPublicKey(serverCert);
 			if (sessionKey == null) {
-				// notify certification verification failed
+				// notify certificate verification failed
 				print("Certificate verification failed, aborting");
 				sendMessage("Certificate invalid, bye.".getBytes(), -2);
 				return;
@@ -75,7 +75,7 @@ public class ClientWithSecurity extends Thread {
 			// configure cipher
 			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			
-			// blocks will be encrypted using client's AES symmetric key instead
+			// blocks will be encrypted using client's AES symmetric key
 			if (cp == 2) {
 				aesProtocol();
 			}
